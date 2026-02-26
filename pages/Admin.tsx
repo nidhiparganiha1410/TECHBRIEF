@@ -46,7 +46,7 @@ const EditorToolbar = ({ onAction }: { onAction: (command: string, value?: strin
 
 const Admin: React.FC = () => {
   const { 
-    isAdmin, lang, articles, pages, categories, adSettings, siteSettings,
+    isAdmin, user, lang, articles, pages, categories, adSettings, siteSettings,
     upsertArticle, deleteArticle, upsertPage, deletePage, 
     upsertCategory, deleteCategory, updateAdSettings, updateSiteSettings 
   } = useAppContext();
@@ -82,10 +82,40 @@ const Admin: React.FC = () => {
     setIsSaving(true);
     try {
       const content = editorRef.current?.innerHTML || '';
-      await upsertArticle({ ...editingArticle, status, content: { ...editingArticle.content, [lang]: content } });
+      
+      // Generate slug if missing
+      let slug = editingArticle.slug;
+      if (!slug) {
+        const title = editingArticle.title[lang] || editingArticle.title['en'] || '';
+        slug = title.toLowerCase()
+          .replace(/[^a-z0-9]/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '');
+      }
+
+      if (!slug) {
+        throw new Error("Article title or slug is required to generate a valid URL.");
+      }
+
+      const now = new Date().toISOString();
+      const articleToSave: Article = { 
+        ...editingArticle, 
+        slug,
+        status, 
+        content: { ...editingArticle.content, [lang]: content },
+        updated_at: now,
+        publish_at: editingArticle.publish_at || now,
+        created_at: editingArticle.created_at || now,
+        author: user?.name || editingArticle.author,
+        author_id: user?.id || editingArticle.author_id
+      };
+
+      await upsertArticle(articleToSave);
       setActiveTab('content');
-    } catch (err) {
-      alert("Failed to save article. Ensure all fields are valid.");
+      setEditingArticle(null);
+    } catch (err: any) {
+      console.error("Save error:", err);
+      alert(`Failed to save article: ${err.message || 'Ensure all fields are valid.'}`);
     } finally {
       setIsSaving(false);
     }
@@ -173,7 +203,32 @@ const Admin: React.FC = () => {
             </div>
           </div>
           {activeTab === 'content' && (
-            <button onClick={() => { setEditingArticle({ id: crypto.randomUUID(), slug: '', title: {}, summary: {}, content: {}, status: 'draft', visibility: 'public', category: categories[0]?.slug || 'AI', categories: [], tags: [], author: 'Admin', author_id: '1', date: new Date().toISOString(), imageUrl: '', publish_at: '', created_at: '', updated_at: '', revision_ids: [] }); setActiveTab('article-editor'); }} className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold flex items-center space-x-2 hover:bg-blue-500 transition-all shadow-lg shadow-blue-600/20">
+            <button 
+              onClick={() => { 
+                setEditingArticle({ 
+                  id: crypto.randomUUID(), 
+                  slug: '', 
+                  title: {}, 
+                  summary: {}, 
+                  content: {}, 
+                  status: 'draft', 
+                  visibility: 'public', 
+                  category: categories[0]?.slug || 'AI', 
+                  categories: [], 
+                  tags: [], 
+                  author: user?.name || 'Admin', 
+                  author_id: user?.id || '1', 
+                  date: new Date().toISOString(), 
+                  imageUrl: '', 
+                  publish_at: '', 
+                  created_at: new Date().toISOString(), 
+                  updated_at: new Date().toISOString(), 
+                  revision_ids: [] 
+                }); 
+                setActiveTab('article-editor'); 
+              }} 
+              className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold flex items-center space-x-2 hover:bg-blue-500 transition-all shadow-lg shadow-blue-600/20"
+            >
               <Plus size={18} /> <span>New Article</span>
             </button>
           )}
@@ -408,6 +463,18 @@ const Admin: React.FC = () => {
               {/* Meta Settings Panel */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-[#020617] p-8 rounded-[2rem] border border-white/5 space-y-6">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center">
+                      <LinkIcon size={12} className="mr-2" /> Custom Slug (URL)
+                    </label>
+                    <input 
+                      type="text"
+                      className="w-full bg-slate-900 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                      value={editingArticle.slug}
+                      onChange={(e) => setEditingArticle({ ...editingArticle, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') })}
+                      placeholder="article-url-slug"
+                    />
+                  </div>
                   <div className="space-y-2">
                     <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center">
                       <Tags size={12} className="mr-2" /> Assigned Category

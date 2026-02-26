@@ -178,15 +178,25 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   // CRUD METHODS (Supabase Connected)
   const upsertArticle = async (article: Article) => {
-    const { error } = await supabase.from('articles').upsert(article);
-    if (error) {
-      console.error("Supabase upsertArticle error:", error);
-      throw error;
-    } else {
-      setArticles(prev => prev.find(a => a.id === article.id) 
-        ? prev.map(a => a.id === article.id ? article : a) 
-        : [article, ...prev]
-      );
+    try {
+      const { error } = await supabase.from('articles').upsert(article);
+      if (error) {
+        console.error("Supabase upsertArticle error:", error);
+        throw new Error(error.message);
+      }
+      
+      setArticles(prev => {
+        const index = prev.findIndex(a => a.id === article.id);
+        if (index !== -1) {
+          const newArticles = [...prev];
+          newArticles[index] = article;
+          return newArticles;
+        }
+        return [article, ...prev];
+      });
+    } catch (err: any) {
+      console.error("upsertArticle caught error:", err);
+      throw err;
     }
   };
 
@@ -199,15 +209,25 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const upsertPage = async (page: Page) => {
-    const { error } = await supabase.from('pages').upsert(page);
-    if (error) {
-      console.error("Supabase upsertPage error:", error);
-      throw error;
-    } else {
-      setPages(prev => prev.find(p => p.id === page.id)
-        ? prev.map(p => p.id === page.id ? page : p)
-        : [page, ...prev]
-      );
+    try {
+      const { error } = await supabase.from('pages').upsert(page);
+      if (error) {
+        console.error("Supabase upsertPage error:", error);
+        throw new Error(error.message);
+      }
+      
+      setPages(prev => {
+        const index = prev.findIndex(p => p.id === page.id);
+        if (index !== -1) {
+          const newPages = [...prev];
+          newPages[index] = page;
+          return newPages;
+        }
+        return [page, ...prev];
+      });
+    } catch (err: any) {
+      console.error("upsertPage caught error:", err);
+      throw err;
     }
   };
 
