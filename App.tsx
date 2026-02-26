@@ -34,25 +34,37 @@ const ScriptInjector: React.FC = () => {
 
     const injectHTML = (html: string) => {
       if (!html) return;
-      const parser = new DOMParser();
-      const doc = parser.parseFromString(html, 'text/html');
-      
-      // Inject scripts
-      Array.from(doc.querySelectorAll('script')).forEach(s => {
-        const script = document.createElement('script');
-        if (s.src) script.src = s.src;
-        script.textContent = s.textContent;
-        head.appendChild(script);
-        scripts.push(script);
-      });
+      try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        
+        // Inject scripts
+        Array.from(doc.querySelectorAll('script')).forEach(s => {
+          try {
+            const script = document.createElement('script');
+            if (s.src) script.src = s.src;
+            script.textContent = s.textContent;
+            head.appendChild(script);
+            scripts.push(script);
+          } catch (e) {
+            console.error("Error injecting script:", e);
+          }
+        });
 
-      // Inject metas
-      Array.from(doc.querySelectorAll('meta')).forEach(m => {
-        const meta = document.createElement('meta');
-        Array.from(m.attributes).forEach(attr => meta.setAttribute(attr.name, attr.value));
-        head.appendChild(meta);
-        metaTags.push(meta);
-      });
+        // Inject metas
+        Array.from(doc.querySelectorAll('meta')).forEach(m => {
+          try {
+            const meta = document.createElement('meta');
+            Array.from(m.attributes).forEach(attr => meta.setAttribute(attr.name, attr.value));
+            head.appendChild(meta);
+            metaTags.push(meta);
+          } catch (e) {
+            console.error("Error injecting meta tag:", e);
+          }
+        });
+      } catch (e) {
+        console.error("Error parsing HTML for injection:", e);
+      }
     };
 
     // Inject Search Console Tag directly
