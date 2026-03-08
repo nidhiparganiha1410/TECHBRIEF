@@ -67,23 +67,27 @@ ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
 -- Articles
 CREATE POLICY "Public read articles" ON articles FOR SELECT USING (true);
 CREATE POLICY "Admin write articles" ON articles FOR ALL USING (
-  (auth.jwt() -> 'user_metadata' ->> 'role') IN ('admin', 'super_admin')
+  (auth.jwt() -> 'user_metadata' ->> 'role') IN ('admin', 'super_admin') OR
+  (auth.jwt() -> 'app_metadata' ->> 'role') IN ('admin', 'super_admin')
 );
 
 -- Categories
 CREATE POLICY "Public read categories" ON categories FOR SELECT USING (true);
 CREATE POLICY "Admin write categories" ON categories FOR ALL USING (
-  (auth.jwt() -> 'user_metadata' ->> 'role') IN ('admin', 'super_admin')
+  (auth.jwt() -> 'user_metadata' ->> 'role') IN ('admin', 'super_admin') OR
+  (auth.jwt() -> 'app_metadata' ->> 'role') IN ('admin', 'super_admin')
 );
 
 -- Pages
 CREATE POLICY "Public read pages" ON pages FOR SELECT USING (true);
 CREATE POLICY "Admin write pages" ON pages FOR ALL USING (
-  (auth.jwt() -> 'user_metadata' ->> 'role') IN ('admin', 'super_admin')
+  (auth.jwt() -> 'user_metadata' ->> 'role') IN ('admin', 'super_admin') OR
+  (auth.jwt() -> 'app_metadata' ->> 'role') IN ('admin', 'super_admin')
 );
 
 -- Settings
 CREATE POLICY "Public read settings" ON settings FOR SELECT USING (true);
 CREATE POLICY "Admin write settings" ON settings FOR ALL USING (
-  (auth.jwt() -> 'user_metadata' ->> 'role') IN ('admin', 'super_admin')
+  (auth.jwt() -> 'user_metadata' ->> 'role') IN ('admin', 'super_admin') OR
+  (auth.jwt() -> 'app_metadata' ->> 'role') IN ('admin', 'super_admin')
 );

@@ -38,13 +38,25 @@ const CricketWidget: React.FC = () => {
 
   const parseFixtures = (rawText: string) => {
     const lines = rawText.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-    const fixturesIndex = lines.findIndex(l => l.toLowerCase().includes('upcoming') || l.toLowerCase().includes('schedule'));
+    const fixturesIndex = lines.findIndex(l => 
+      l.toLowerCase().includes('upcoming') || 
+      l.toLowerCase().includes('schedule') || 
+      l.toLowerCase().includes('fixtures')
+    );
     if (fixturesIndex === -1) return [];
 
     return lines.slice(fixturesIndex + 1)
-      .filter(l => !l.includes('---') && !l.toLowerCase().includes('opponent') && !l.toLowerCase().includes('date'))
-      .map(l => l.replace(/\|/g, '').trim())
-      .filter(l => l.length > 5);
+      .filter(l => 
+        !l.includes('---') && 
+        !l.toLowerCase().includes('opponent') && 
+        !l.toLowerCase().includes('date') &&
+        !l.toLowerCase().includes('venue') &&
+        !l.toLowerCase().includes('upcoming') &&
+        !l.toLowerCase().includes('schedule')
+      )
+      .map(l => l.replace(/^[*-]\s*/, '').replace(/\|/g, '').trim())
+      .filter(l => l.length > 5)
+      .slice(0, 3);
   };
 
   const fixtures = cricketInfo ? parseFixtures(cricketInfo.text) : [];

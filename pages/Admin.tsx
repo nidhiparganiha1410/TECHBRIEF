@@ -142,18 +142,40 @@ const Admin: React.FC = () => {
     setIsCategoryLoading(true);
     try {
       const name = categoryInput.trim();
+      const slug = name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+      
+      // Check if slug already exists locally to prevent unnecessary API call
+      if (categories.some(c => c.slug === slug)) {
+        alert(`A category with the slug "${slug}" already exists.`);
+        setIsCategoryLoading(false);
+        return;
+      }
+
       const newCategory: Category = { 
-        id: crypto.randomUUID(), // Standard UUID required for Supabase
+        id: crypto.randomUUID(), 
         name: { [lang]: name, en: name }, 
-        slug: name.toLowerCase().replace(/[^a-z0-9]/g, '-') 
+        slug 
       };
       
       await upsertCategory(newCategory);
       setCategoryInput('');
-    } catch (err) {
-      alert("Error adding category. It might already exist or check your permissions.");
+    } catch (err: any) {
+      console.error("Category add error:", err);
+      alert(`Error adding category: ${err.message || 'Check your permissions or if the category already exists.'}`);
     } finally {
       setIsCategoryLoading(false);
+    }
+  };
+
+  const handleDeleteCategory = async (id: string, name: string) => {
+    if (!window.confirm(`Are you sure you want to delete the "${name}" category? This might affect articles assigned to it.`)) {
+      return;
+    }
+    
+    try {
+      await deleteCategory(id);
+    } catch (err: any) {
+      alert(`Failed to delete category: ${err.message}`);
     }
   };
 
@@ -350,7 +372,7 @@ const Admin: React.FC = () => {
                         </span>
                       </div>
                       <button 
-                        onClick={() => deleteCategory(cat.id)} 
+                        onClick={() => handleDeleteCategory(cat.id, cat.name[lang] || cat.name['en'])} 
                         className="p-2 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-xl transition-all"
                         title="Remove Category"
                       >

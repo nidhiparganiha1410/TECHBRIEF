@@ -6,7 +6,7 @@ import { Language } from "../types";
  * Generates an AI summary of the provided tech news article content.
  */
 export const generateAISummary = async (content: string, lang: Language): Promise<string> => {
-  const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || (typeof process !== 'undefined' ? process.env.GEMINI_API_KEY : undefined);
   if (!apiKey) {
     console.warn("Gemini API Key is missing. AI summary will be disabled.");
     return "AI summary currently unavailable (API Key missing).";
@@ -81,7 +81,7 @@ export const getCricketUpdate = async (): Promise<CricketData> => {
   }
 
   cricketRequestInProgress = (async () => {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY || (typeof process !== 'undefined' ? process.env.GEMINI_API_KEY : undefined);
     if (!apiKey) {
       console.warn("Gemini API Key is missing. Cricket updates will be disabled.");
       return { text: "Cricket information currently unavailable (API Key missing).", links: [] };
@@ -91,7 +91,7 @@ export const getCricketUpdate = async (): Promise<CricketData> => {
       const ai = new GoogleGenAI({ apiKey });
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
-        contents: "Provide the latest live cricket score for the Indian national team (Men or Women) if a match is currently ongoing. If no match is live, state 'No live match currently'. Also, provide the schedule for the next 3 upcoming Indian international cricket matches (opponent, date, and venue). Keep the response concise and factual.",
+        contents: "Provide the latest live cricket score for the Indian national team (Men or Women) if a match is currently ongoing. If no match is live, state 'No live match currently'. Then, under a clear header 'UPCOMING SCHEDULE', provide the next 3 upcoming Indian international cricket matches (opponent, date, and venue) as a simple list. Keep the response concise and factual.",
         config: {
           tools: [{ googleSearch: {} }],
         },

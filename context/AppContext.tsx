@@ -62,10 +62,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       // 2. Auth state
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
-        const role = (session.user.user_metadata.role || 'user') as any;
+        const role = (session.user.app_metadata?.role || session.user.user_metadata?.role || 'user') as any;
         setUser({
           id: session.user.id,
-          name: session.user.user_metadata.full_name || 'Member',
+          name: session.user.user_metadata?.full_name || 'Member',
           email: session.user.email!,
           role: role,
           permissions: getDefaultPermissions(role)
@@ -75,10 +75,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       // Subscribe to auth changes
       supabase.auth.onAuthStateChange((_event, session) => {
         if (session?.user) {
-          const role = (session.user.user_metadata.role || 'user') as any;
+          const role = (session.user.app_metadata?.role || session.user.user_metadata?.role || 'user') as any;
           setUser({
             id: session.user.id,
-            name: session.user.user_metadata.full_name || 'Member',
+            name: session.user.user_metadata?.full_name || 'Member',
             email: session.user.email!,
             role: role,
             permissions: getDefaultPermissions(role)
@@ -162,10 +162,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
     if (error) return { success: false, message: error.message };
     
-    const role = data.user?.user_metadata.role;
+    const user = data.user;
+    const role = user?.app_metadata?.role || user?.user_metadata?.role;
+    
     if (isAdminAttempt && role !== 'admin' && role !== 'super_admin') {
       await supabase.auth.signOut();
-      return { success: false, message: "Access denied. Not an administrator account." };
+      return { 
+        success: false, 
+        message: `Access denied. Your account role is "${role || 'user'}", but administrator privileges are required. Please contact the system owner or run the promotion SQL script.` 
+      };
     }
 
     return { success: true, message: "Logged in successfully." };
