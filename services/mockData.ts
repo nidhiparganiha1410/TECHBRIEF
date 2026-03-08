@@ -60,7 +60,100 @@ const generateArticle = (id: string, category: string, status: any = 'published'
 });
 
 export const MOCK_ARTICLES: Article[] = [
-  ...Array.from({ length: 15 }, (_, i) => generateArticle((i + 1).toString(), ['AI', 'Software', 'Hardware', 'Crypto', 'Mobile'][i % 5], 'published', i < 3)), // Feature first 3
+  {
+    ...generateArticle('pillar-1', 'Software', 'published', true),
+    slug: 'ultimate-guide-project-management-software-2026',
+    title: { 
+      en: 'Ultimate Guide to Project Management Software 2026',
+      es: 'Guía Definitiva de Software de Gestión de Proyectos 2026'
+    },
+    summary: { 
+      en: 'Discover the best project management software tools for 2026. Compare features, pricing, and integration tips to optimize your team workflow.',
+      es: 'Descubra las mejores herramientas de software de gestión de proyectos para 2026. Compare funciones, precios y consejos de integración.'
+    },
+    highlights: {
+      en: [
+        "Real-time resource allocation benchmarks",
+        "AI-driven predictive scheduling analysis",
+        "Cross-platform integration ecosystem review"
+      ]
+    },
+    content: {
+      en: `
+        <h2>The Evolution of Project Management in 2026</h2>
+        <p>In 2026, project management software has transcended simple task tracking. It is now the central nervous system of high-performing organizations. This guide explores the top tools that are defining the industry this year.</p>
+        
+        <h3>Key Features to Look For</h3>
+        <p>When selecting your stack, prioritize AI-assisted automation, deep integration with communication tools, and robust data visualization capabilities. The best tools now offer predictive analytics that can foresee bottlenecks before they happen.</p>
+        
+        <h3>Top Tools Comparison</h3>
+        <p>From enterprise-grade solutions to agile-focused platforms, we break down the pricing models and unique value propositions of the leading contenders in the market.</p>
+      `
+    }
+  },
+  {
+    ...generateArticle('pillar-2', 'AI', 'published', true),
+    slug: 'best-ai-software-tools-for-businesses',
+    title: { 
+      en: 'Best AI Software Tools for Businesses',
+      es: 'Mejores Herramientas de Software de IA para Empresas'
+    },
+    summary: { 
+      en: 'An expert review of the top AI software tools driving business efficiency in 2026. From automation to deep analytics, find the right fit for your team.',
+      es: 'Una revisión experta de las principales herramientas de software de IA que impulsan la eficiencia empresarial en 2026.'
+    },
+    highlights: {
+      en: [
+        "Generative AI implementation strategies",
+        "Cost-benefit analysis of enterprise AI",
+        "Ethical AI usage and compliance guide"
+      ]
+    },
+    content: {
+      en: `
+        <h2>AI: The New Business Standard</h2>
+        <p>Artificial Intelligence is no longer a luxury; it is a fundamental requirement for competitive business operations. The landscape of AI software tools has matured, offering specialized solutions for every department.</p>
+        
+        <h3>Automation and Efficiency</h3>
+        <p>Modern AI tools are automating complex workflows, from customer service chatbots to automated financial auditing. We examine how these tools are saving thousands of man-hours annually.</p>
+        
+        <h3>Free vs. Paid Solutions</h3>
+        <p>While open-source models are gaining ground, enterprise-grade paid solutions offer the security and support necessary for large-scale deployments. We compare the ROI of both approaches.</p>
+      `
+    }
+  },
+  {
+    ...generateArticle('pillar-3', 'Software', 'published', true),
+    slug: 'top-productivity-software-for-teams',
+    title: { 
+      en: 'Top Productivity Software for Teams',
+      es: 'Mejor Software de Productividad para Equipos'
+    },
+    summary: { 
+      en: 'Optimize your team workflow with the top productivity software of 2026. Focus on remote work, mobile accessibility, and seamless app integrations.',
+      es: 'Optimice el flujo de trabajo de su equipo con el mejor software de productividad de 2026.'
+    },
+    highlights: {
+      en: [
+        "Workflow optimization techniques for 2026",
+        "Mobile-first productivity app reviews",
+        "Remote work focus and team synergy tools"
+      ]
+    },
+    content: {
+      en: `
+        <h2>Redefining Team Productivity</h2>
+        <p>Productivity in 2026 is about more than just doing more; it's about doing what matters most. The latest productivity software focuses on reducing "work about work" through intelligent filtering and context-aware notifications.</p>
+        
+        <h3>Workflow Optimization</h3>
+        <p>We dive into how modern tools use behavioral science to help teams stay in the "flow state" longer. Integration between calendar, task, and communication apps is now seamless.</p>
+        
+        <h3>Mobile and Remote Focus</h3>
+        <p>With the global workforce more distributed than ever, mobile accessibility is paramount. We review the apps that offer the best experience on the go without sacrificing power.</p>
+      `
+    }
+  },
+  ...Array.from({ length: 15 }, (_, i) => generateArticle((i + 1).toString(), ['AI', 'Software', 'Hardware', 'Crypto', 'Mobile'][i % 5], 'published', false)),
   {
     ...generateArticle('16', 'AI', 'draft'),
     title: { en: 'Generative Agents in the Wild' }

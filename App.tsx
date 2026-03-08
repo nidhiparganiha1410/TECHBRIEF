@@ -32,6 +32,23 @@ const ScriptInjector: React.FC = () => {
     const scripts: HTMLScriptElement[] = [];
     const metaTags: HTMLMetaElement[] = [];
 
+    // Protection for window.fetch to prevent third-party scripts from crashing the app
+    // when they try to overwrite the read-only fetch property.
+    try {
+      const originalFetch = window.fetch;
+      if (originalFetch) {
+        Object.defineProperty(window, 'fetch', {
+          get: () => originalFetch,
+          set: (v) => {
+            console.warn("A script attempted to overwrite window.fetch. This was blocked to prevent a crash.", v);
+          },
+          configurable: true
+        });
+      }
+    } catch (e) {
+      // If we can't redefine it, we just continue
+    }
+
     const injectHTML = (html: string) => {
       if (!html) return;
       try {
@@ -44,6 +61,10 @@ const ScriptInjector: React.FC = () => {
             const script = document.createElement('script');
             if (s.src) script.src = s.src;
             script.textContent = s.textContent;
+            
+            // Add error listener to the script
+            script.onerror = (e) => console.error("Script execution error:", e);
+            
             head.appendChild(script);
             scripts.push(script);
           } catch (e) {

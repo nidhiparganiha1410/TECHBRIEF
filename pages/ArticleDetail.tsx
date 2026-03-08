@@ -5,6 +5,7 @@ import { useAppContext } from '../context/AppContext';
 import { generateAISummary, getCricketUpdate } from '../services/geminiService';
 import CommentSection from '../components/CommentSection';
 import ArticleCard from '../components/ArticleCard';
+import { getTranslation } from '../translations';
 import { Calendar, User, ArrowLeft, Sparkles, AlertCircle, Flame, Trophy, ExternalLink, ChevronRight, Zap } from 'lucide-react';
 
 const SidebarCricketWidget: React.FC = () => {
@@ -114,7 +115,7 @@ const ArticleDetail: React.FC = () => {
       <div className="container mx-auto px-4 pt-10">
         <button onClick={() => navigate(-1)} className="group flex items-center text-slate-500 hover:text-blue-400 transition-colors mb-8 font-bold text-sm">
           <ArrowLeft size={18} className="mr-2 transition-transform group-hover:-translate-x-1" />
-          {lang === 'en' ? 'Back' : 'Volver'}
+          {getTranslation('back', lang)}
         </button>
 
         <div className="flex flex-col lg:flex-row gap-12">
@@ -144,11 +145,11 @@ const ArticleDetail: React.FC = () => {
               <div className="mb-12 bg-blue-600/5 rounded-3xl p-8 border border-blue-500/20">
                 <div className="flex items-center justify-between mb-6">
                   <h3 className="text-blue-400 font-black uppercase tracking-[0.2em] flex items-center text-xs">
-                    <Sparkles className="mr-3 text-blue-500" size={18} /> AI Insights
+                    <Sparkles className="mr-3 text-blue-500" size={18} /> {getTranslation('ai_insights', lang)}
                   </h3>
                   {!aiSummary && (
                     <button onClick={handleAiSummarize} disabled={isLoadingSummary} className="text-[10px] bg-blue-600 text-white px-4 py-2 rounded-xl font-black uppercase tracking-widest transition-all disabled:opacity-50">
-                      {isLoadingSummary ? 'Processing...' : 'Summarize'}
+                      {isLoadingSummary ? getTranslation('processing', lang) : getTranslation('summarize', lang)}
                     </button>
                   )}
                 </div>
@@ -168,7 +169,7 @@ const ArticleDetail: React.FC = () => {
               {relatedArticles.length > 0 && (
                 <div className="pt-16 border-t border-white/5 mb-16">
                   <h3 className="text-2xl font-serif font-bold mb-8 text-white flex items-center">
-                    <Zap className="text-blue-500 mr-3" size={24} /> Recommended
+                    <Zap className="text-blue-500 mr-3" size={24} /> {getTranslation('recommended', lang)}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {relatedArticles.map((ra) => <ArticleCard key={ra.id} article={ra} lang={ra.category === article.category ? lang : 'en'} />)}

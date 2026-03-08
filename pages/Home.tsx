@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { CATEGORIES } from '../constants';
 import { useAppContext } from '../context/AppContext';
 import ArticleCard from '../components/ArticleCard';
+import { getTranslation } from '../translations';
 import { ChevronLeft, ChevronRight, Zap, TrendingUp, Sparkles, Flame, Star, Mail, ArrowUpRight, Globe, Layers, Cpu, Bitcoin, Smartphone, Trophy, Radio, Calendar as CalendarIcon, ExternalLink, MapPin, Users as UsersIcon, ArrowRight, Share2, MessageSquare } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { getCricketUpdate } from '../services/geminiService';
@@ -162,7 +163,12 @@ const Home: React.FC = () => {
   const [sliderIndex, setSliderIndex] = useState(0);
 
   const publishedArticles = articles.filter(a => a.status === 'published');
-  const sliderPosts = publishedArticles.filter(a => a.isFeatured);
+  const featuredArticles = publishedArticles.filter(a => a.isFeatured);
+  const sliderPosts = featuredArticles.length > 0 
+    ? featuredArticles 
+    : publishedArticles.length > 0 
+      ? publishedArticles.slice(0, 5) 
+      : [];
   const trendingPosts = publishedArticles.slice(0, 5);
   const highlightPosts = publishedArticles.slice(0, 3);
   const spotlightPost = publishedArticles[4] || publishedArticles[0];
@@ -196,10 +202,10 @@ const Home: React.FC = () => {
           <div className="flex items-center justify-between border-b border-white/5 pb-4">
             <h3 className="text-3xl font-serif font-bold flex items-center text-white">
               <span className="w-2.5 h-8 bg-blue-600 rounded-full mr-4 shadow-[0_0_15px_rgba(37,99,235,0.4)]"></span>
-              Intelligence & AI
+              {getTranslation('ai_header', lang)}
             </h3>
             <Link to={`/category/ai`} className="flex items-center space-x-2 text-blue-400 hover:text-white transition-colors cursor-pointer group">
-              <span className="text-xs font-black uppercase tracking-widest">Neural Network</span>
+              <span className="text-xs font-black uppercase tracking-widest">{getTranslation('neural_network', lang)}</span>
               <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
@@ -232,7 +238,7 @@ const Home: React.FC = () => {
           <div className="flex items-center justify-between border-b border-white/5 pb-4">
             <h3 className="text-3xl font-serif font-bold flex items-center text-white">
               <span className="w-2.5 h-8 bg-emerald-500 rounded-full mr-4 shadow-[0_0_15px_rgba(16,185,129,0.4)]"></span>
-              Dev Channel
+              {getTranslation('software_header', lang)}
             </h3>
             <Layers className="text-emerald-500" size={24} />
           </div>
@@ -249,7 +255,7 @@ const Home: React.FC = () => {
                 <div className="md:w-2/3 space-y-3">
                    <div className="flex items-center space-x-2 text-emerald-400">
                       <Cpu size={14} />
-                      <span className="text-[10px] font-black uppercase tracking-widest">Stack Architecture</span>
+                      <span className="text-[10px] font-black uppercase tracking-widest">{getTranslation('stack_architecture', lang)}</span>
                    </div>
                    <h4 className="text-2xl font-bold text-white group-hover:text-emerald-400 transition-colors leading-tight">
                      {a.title[lang] || a.title['en']}
@@ -270,7 +276,7 @@ const Home: React.FC = () => {
            <div className="flex items-center justify-between border-b border-white/5 pb-4">
             <h3 className="text-3xl font-serif font-bold flex items-center text-white">
               <span className="w-2.5 h-8 bg-amber-500 rounded-full mr-4 shadow-[0_0_15px_rgba(245,158,11,0.4)]"></span>
-              Hardware Lab
+              {getTranslation('hardware_header', lang)}
             </h3>
             <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest bg-amber-500/10 px-4 py-1 rounded-full border border-amber-500/20">Benchmarks</span>
           </div>
@@ -304,7 +310,7 @@ const Home: React.FC = () => {
            <div className="flex items-center justify-between border-b border-white/5 pb-4">
             <h3 className="text-3xl font-serif font-bold flex items-center text-white">
               <span className="w-2.5 h-8 bg-orange-500 rounded-full mr-4 shadow-[0_0_15px_rgba(249,115,22,0.4)]"></span>
-              Digital Assets
+              {getTranslation('crypto_header', lang)}
             </h3>
             <Bitcoin className="text-orange-500 animate-pulse" size={24} />
           </div>
@@ -321,7 +327,7 @@ const Home: React.FC = () => {
                   </div>
                 </div>
                 <div className="flex flex-col items-end space-y-1">
-                   <div className="text-[9px] font-black text-orange-500 uppercase tracking-widest bg-orange-500/10 px-3 py-1 rounded-lg border border-orange-500/20">Market Log</div>
+                   <div className="text-[9px] font-black text-orange-500 uppercase tracking-widest bg-orange-500/10 px-3 py-1 rounded-lg border border-orange-500/20">{getTranslation('market_log', lang)}</div>
                    <div className="text-[10px] font-bold text-slate-500 uppercase">{a.date}</div>
                 </div>
               </Link>
@@ -338,7 +344,7 @@ const Home: React.FC = () => {
            <div className="flex items-center justify-between border-b border-white/5 pb-4">
             <h3 className="text-3xl font-serif font-bold flex items-center text-white">
               <span className="w-2.5 h-8 bg-indigo-500 rounded-full mr-4 shadow-[0_0_15px_rgba(99,102,241,0.4)]"></span>
-              Mobile Era
+              {getTranslation('mobile_header', lang)}
             </h3>
             <Smartphone className="text-indigo-400" size={24} />
           </div>
@@ -348,7 +354,7 @@ const Home: React.FC = () => {
                 <img src={a.imageUrl} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-[#020617]/40 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-8 space-y-3">
-                   <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest px-3 py-1 bg-indigo-500/10 rounded-full border border-indigo-500/20">Mobile OS</span>
+                   <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest px-3 py-1 bg-indigo-500/10 rounded-full border border-indigo-500/20">{getTranslation('mobile_os', lang)}</span>
                    <h4 className="text-2xl font-bold text-white group-hover:text-indigo-300 transition-colors leading-tight">{a.title[lang] || a.title['en']}</h4>
                    <div className="flex items-center space-x-3 pt-2">
                       <div className="w-8 h-8 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-[10px] font-bold">{a.author[0]}</div>
@@ -408,7 +414,7 @@ const Home: React.FC = () => {
 
                       <div className="pt-2">
                         <Link to={`/article/${item.id}`} className="inline-flex items-center px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white rounded-2xl font-bold transition-all shadow-xl">
-                          Explore Insights
+                          {getTranslation('explore_insights', lang)}
                         </Link>
                       </div>
                     </div>
@@ -476,7 +482,7 @@ const Home: React.FC = () => {
           <aside className="lg:w-1/3 space-y-12">
             <CricketWidget />
             <div className="bg-white/5 rounded-[2.5rem] p-8 border border-white/5">
-              <h3 className="text-xl font-serif font-bold mb-8 text-white flex items-center"><Flame className="text-orange-500 mr-3" size={20} /> Trending Now</h3>
+              <h3 className="text-xl font-serif font-bold mb-8 text-white flex items-center"><Flame className="text-orange-500 mr-3" size={20} /> {getTranslation('trending_now', lang)}</h3>
               <div className="space-y-8">
                 {trendingPosts.map((a, i) => (
                   <Link key={a.id} to={`/article/${a.id}`} className="group/item flex items-start space-x-4">

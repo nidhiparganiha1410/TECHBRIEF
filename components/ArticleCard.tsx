@@ -3,6 +3,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Article, Language } from '../types';
 import { Calendar, User, ChevronRight } from 'lucide-react';
+import { getTranslation } from '../translations';
 
 interface ArticleCardProps {
   article: Article;
@@ -36,15 +37,15 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, lang }) => {
         </div>
         
         <h3 className="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors line-clamp-2 leading-tight font-serif">
-          {article.title[lang]}
+          {article.title[lang] || article.title['en']}
         </h3>
         
         <p className="text-slate-400 text-sm mb-6 line-clamp-3 leading-relaxed flex-grow font-medium">
-          {article.summary[lang]}
+          {article.summary[lang] || article.summary['en']}
         </p>
         
         <div className="flex items-center text-blue-400 font-bold text-xs uppercase tracking-widest">
-          <span>{lang === 'en' ? 'Deep Dive' : 'Leer más'}</span>
+          <span>{getTranslation('deep_dive', lang)}</span>
           <ChevronRight size={14} className="ml-1 transition-transform group-hover:translate-x-1" />
         </div>
       </div>

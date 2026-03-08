@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useAppContext } from '../context/AppContext';
 import ArticleCard from '../components/ArticleCard';
+import { getTranslation } from '../translations';
 import { ChevronLeft, Sparkles, Layers, Cpu, Bitcoin, Smartphone, Filter, Zap } from 'lucide-react';
 
 const CategoryPage: React.FC = () => {
@@ -69,7 +70,7 @@ const CategoryPage: React.FC = () => {
       <div className="container mx-auto px-4 pt-12 relative z-10">
         <Link to="/" className="inline-flex items-center text-slate-500 hover:text-white mb-12 transition-all font-bold text-sm group">
           <ChevronLeft size={20} className="mr-2 group-hover:-translate-x-1 transition-transform" />
-          Back to Hub
+          {getTranslation('back_to_hub', lang)}
         </Link>
 
         <header className="mb-16">

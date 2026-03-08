@@ -5,6 +5,7 @@ import { useAppContext } from '../context/AppContext';
 import { NAVIGATION, APP_NAME, SUPPORTED_LANGUAGES } from '../constants';
 import { Menu, X, User as UserIcon, LogOut, Globe, ChevronDown } from 'lucide-react';
 import { Language } from '../types';
+import { getTranslation } from '../translations';
 
 const Header: React.FC = () => {
   const { lang, setLang, user, logout, isAdmin } = useAppContext();
@@ -41,7 +42,7 @@ const Header: React.FC = () => {
             </div>
             <div className="flex flex-col">
               <span className="text-xl font-extrabold tracking-tight font-serif text-white leading-none">{APP_NAME}</span>
-              <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mt-1">Intelligence Hub</span>
+              <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest mt-1">{getTranslation('intelligence_hub', lang)}</span>
             </div>
           </Link>
 
@@ -115,7 +116,7 @@ const Header: React.FC = () => {
                 className="px-5 py-2.5 bg-blue-600 text-white text-xs font-bold rounded-xl hover:bg-blue-500 hover:shadow-lg hover:shadow-blue-500/20 transition-all flex items-center space-x-2"
               >
                 <UserIcon size={14} />
-                <span>{lang === 'en' ? 'SIGN IN' : (lang === 'ar' ? 'تسجيل الدخول' : 'INGRESAR')}</span>
+                <span>{getTranslation('sign_in', lang)}</span>
               </Link>
             )}
 
@@ -150,7 +151,7 @@ const Header: React.FC = () => {
               onClick={() => setIsMenuOpen(false)}
               className="block w-full py-4 bg-blue-600 text-white text-center rounded-2xl font-bold shadow-lg shadow-blue-500/20"
             >
-              {lang === 'en' ? 'Get Started' : 'Empezar'}
+              {getTranslation('get_started', lang)}
             </Link>
           )}
         </div>
