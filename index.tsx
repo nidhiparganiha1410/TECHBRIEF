@@ -4,23 +4,18 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import './index.css';
 
-// Global protection for window.fetch to prevent third-party scripts from crashing the app
-// when they try to overwrite the read-only fetch property.
-// This must run before any other scripts.
-try {
-  const originalFetch = window.fetch;
-  if (originalFetch) {
-    Object.defineProperty(window, 'fetch', {
-      get: () => originalFetch,
-      set: (v) => {
-        console.warn("A script attempted to overwrite window.fetch. This was blocked to prevent a crash.", v);
-      },
-      configurable: true
-    });
+// Global error handler for "Failed to fetch" and other network issues
+window.addEventListener('error', (event) => {
+  if (event.message && event.message.includes('Failed to fetch')) {
+    console.warn("Global 'Failed to fetch' caught. This is often a network or CORS issue.", event);
   }
-} catch (e) {
-  // If we can't redefine it, we just continue
-}
+}, true);
+
+window.addEventListener('unhandledrejection', (event) => {
+  if (event.reason && event.reason.message && event.reason.message.includes('Failed to fetch')) {
+    console.warn("Unhandled Promise Rejection: Failed to fetch.", event.reason);
+  }
+});
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

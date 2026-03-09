@@ -529,6 +529,18 @@ const Admin: React.FC = () => {
                       placeholder="https://images.unsplash.com/..."
                     />
                   </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest flex items-center">
+                      <Terminal size={12} className="mr-2" /> Video URL (YouTube/MP4)
+                    </label>
+                    <input 
+                      type="text"
+                      className="w-full bg-slate-900 border border-white/10 rounded-2xl px-5 py-4 text-sm text-white outline-none focus:ring-2 focus:ring-blue-500 transition-all"
+                      value={editingArticle.videoUrl || ''}
+                      onChange={(e) => setEditingArticle({ ...editingArticle, videoUrl: e.target.value })}
+                      placeholder="https://www.youtube.com/watch?v=... or .mp4 link"
+                    />
+                  </div>
                 </div>
               </div>
 

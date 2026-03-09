@@ -56,13 +56,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   useEffect(() => {
     const initApp = async () => {
       // 1. Language preference
-      const savedLang = localStorage.getItem('lang') as Language;
-      if (savedLang) setLang(savedLang);
+      const savedLang = localStorage.getItem('lang');
+      if (savedLang && savedLang !== "undefined" && SUPPORTED_LANGUAGES.some(l => l.code === savedLang)) {
+        setLang(savedLang as Language);
+      }
 
       // 2. Auth state
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
-        const role = (session.user.app_metadata?.role || session.user.user_metadata?.role || 'user') as any;
+        const role = (session.user.app_metadata?.role || 'user') as any;
         setUser({
           id: session.user.id,
           name: session.user.user_metadata?.full_name || 'Member',
@@ -75,7 +77,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       // Subscribe to auth changes
       supabase.auth.onAuthStateChange((_event, session) => {
         if (session?.user) {
-          const role = (session.user.app_metadata?.role || session.user.user_metadata?.role || 'user') as any;
+          const role = (session.user.app_metadata?.role || 'user') as any;
           setUser({
             id: session.user.id,
             name: session.user.user_metadata?.full_name || 'Member',
@@ -90,6 +92,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
       // 3. Fetch Content from Supabase
       try {
+        console.log("Initializing Supabase data fetch...");
         const [arts, pgs, cats, settings] = await Promise.all([
           supabase.from('articles').select('*').order('created_at', { ascending: false }),
           supabase.from('pages').select('*'),
@@ -97,16 +100,32 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           supabase.from('settings').select('*')
         ]);
 
+        if (arts.error) console.error("Supabase Articles Fetch Error:", arts.error);
+        if (pgs.error) console.error("Supabase Pages Fetch Error:", pgs.error);
+        if (cats.error) {
+          console.error("Supabase Categories Fetch Error:", cats.error);
+          // If there's an error fetching categories, we MUST fallback to initial ones
+          // to ensure the site doesn't break, but we log it clearly.
+        }
+        if (settings.error) console.error("Supabase Settings Fetch Error:", settings.error);
+
         if (arts.data && arts.data.length > 0) setArticles(arts.data as any);
-        else setArticles(MOCK_ARTICLES);
+        else {
+          console.warn("No articles found in Supabase, using mock data.");
+          setArticles(MOCK_ARTICLES);
+        }
 
         if (pgs.data) setPages(pgs.data as any);
         
+        // IMPORTANT: Only use fallback if data is null/undefined OR empty AND no error occurred
+        // If there was an error, we fallback to be safe, but we should prioritize DB data.
         if (cats.data && cats.data.length > 0) {
+          console.log("Successfully fetched categories from Supabase:", cats.data.length);
           setCategories(cats.data as any);
         } else {
+          console.warn("No categories found in Supabase (or fetch failed), using initial fallback.");
           const initial = INITIAL_CATEGORIES.map((c, i) => ({
-            id: crypto.randomUUID(), // Use UUID for initial fallback
+            id: crypto.randomUUID(), 
             name: c,
             slug: c.en.toLowerCase()
           }));
@@ -121,8 +140,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           if (site) setSiteSettings(site.value);
         }
       } catch (err) {
-        console.error("Error connecting to Supabase:", err);
+        console.error("Critical error during Supabase initialization:", err);
         setArticles(MOCK_ARTICLES);
+        // Fallback categories on critical error
+        const initial = INITIAL_CATEGORIES.map((c, i) => ({
+          id: crypto.randomUUID(), 
+          name: c,
+          slug: c.en.toLowerCase()
+        }));
+        setCategories(initial);
       }
     };
 
@@ -163,13 +189,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     if (error) return { success: false, message: error.message };
     
     const user = data.user;
-    const role = user?.app_metadata?.role || user?.user_metadata?.role;
+    const role = user?.app_metadata?.role || 'user';
     
     if (isAdminAttempt && role !== 'admin' && role !== 'super_admin') {
       await supabase.auth.signOut();
       return { 
         success: false, 
-        message: `Access denied. Your account role is "${role || 'user'}", but administrator privileges are required. Please contact the system owner or run the promotion SQL script.` 
+        message: `Access denied. Your account role is "${role}", but administrator privileges are required. Please contact the system owner or run the promotion SQL script.` 
       };
     }
 
@@ -245,11 +271,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   const upsertCategory = async (category: Category) => {
-    const { error } = await supabase.from('categories').upsert(category);
-    if (error) {
-      console.error("Supabase upsertCategory error:", error);
-      throw error;
-    } else {
+    try {
+      console.log("Attempting to upsert category:", category);
+      const { error } = await supabase.from('categories').upsert(category);
+      if (error) {
+        console.error("Supabase upsertCategory error:", error);
+        throw error;
+      }
+      
       setCategories(prev => {
         const existing = prev.find(c => c.id === category.id);
         if (existing) {
@@ -258,16 +287,25 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
           return [...prev, category];
         }
       });
+    } catch (err: any) {
+      console.error("upsertCategory caught error:", err);
+      throw err;
     }
   };
 
   const deleteCategory = async (id: string) => {
-    const { error } = await supabase.from('categories').delete().eq('id', id);
-    if (error) {
-      console.error("Supabase delete error:", error);
-      throw error;
-    } else {
+    try {
+      console.log("Attempting to delete category:", id);
+      const { error } = await supabase.from('categories').delete().eq('id', id);
+      if (error) {
+        console.error("Supabase deleteCategory error:", error);
+        throw error;
+      }
+      
       setCategories(prev => prev.filter(c => c.id !== id));
+    } catch (err: any) {
+      console.error("deleteCategory caught error:", err);
+      throw err;
     }
   };
 

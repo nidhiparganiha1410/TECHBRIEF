@@ -46,7 +46,8 @@ const ScriptInjector: React.FC = () => {
             script.textContent = s.textContent;
             
             // Add error listener to the script
-            script.onerror = (e) => console.error("Script execution error:", e);
+            script.onload = () => console.log("Script loaded successfully:", s.src || "inline");
+            script.onerror = (e) => console.error("Script execution error:", e, s.src || "inline");
             
             head.appendChild(script);
             scripts.push(script);

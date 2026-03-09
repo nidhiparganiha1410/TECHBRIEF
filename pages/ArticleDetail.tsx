@@ -100,6 +100,20 @@ const ArticleDetail: React.FC = () => {
     return parts.join('</p>');
   };
 
+  const getEmbedUrl = (url: string) => {
+    if (!url) return null;
+    
+    // YouTube
+    const ytMatch = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    if (ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}?autoplay=0`;
+    
+    // Vimeo
+    const vimeoMatch = url.match(/(?:https?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)/);
+    if (vimeoMatch) return `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+    
+    return null;
+  };
+
   if (!article) {
     return (
       <div className="container mx-auto px-4 py-20 text-center">
@@ -109,6 +123,8 @@ const ArticleDetail: React.FC = () => {
       </div>
     );
   }
+
+  const embedUrl = getEmbedUrl(article.videoUrl || '');
 
   return (
     <div className="bg-[#0f172a] min-h-screen text-slate-300">
@@ -137,8 +153,24 @@ const ArticleDetail: React.FC = () => {
               </div>
             </div>
 
-            <div className="rounded-[2rem] overflow-hidden shadow-2xl bg-slate-900 border border-white/5 aspect-video mb-12">
-              <img src={article.imageUrl} alt={article.title[lang]} className="w-full h-full object-cover" />
+            <div className="rounded-[2rem] overflow-hidden shadow-2xl bg-slate-900 border border-white/5 aspect-video mb-12 relative">
+              {embedUrl ? (
+                <iframe 
+                  src={embedUrl}
+                  className="w-full h-full"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              ) : article.videoUrl?.endsWith('.mp4') ? (
+                <video 
+                  src={article.videoUrl} 
+                  controls 
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <img src={article.imageUrl} alt={article.title[lang]} className="w-full h-full object-cover" />
+              )}
             </div>
 
             <div className="max-w-none">

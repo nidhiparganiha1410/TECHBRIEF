@@ -28,10 +28,14 @@ ${content}`;
       }
     });
 
+    if (!response) throw new Error("Empty response from Gemini API");
     return response.text || "AI summary currently unavailable.";
-  } catch (error) {
-    console.error("Gemini Error:", error);
-    return "Failed to generate AI summary.";
+  } catch (error: any) {
+    console.error("Gemini Summary Error:", error);
+    if (error.message && error.message.includes('Failed to fetch')) {
+      return "Failed to generate AI summary: Network error (Failed to fetch). Check your internet connection or API key.";
+    }
+    return `Failed to generate AI summary: ${error.message || 'Unknown error'}`;
   }
 };
 
@@ -64,13 +68,14 @@ export const getCricketUpdate = async (): Promise<CricketData> => {
 
   // 2. Check success cache
   const cached = localStorage.getItem(CACHE_KEY);
-  if (cached) {
+  if (cached && cached !== "undefined") {
     try {
       const { data, timestamp } = JSON.parse(cached);
       if (Date.now() - timestamp < CACHE_TIME) {
         return data;
       }
     } catch (e) {
+      console.warn("Failed to parse cricket cache:", e);
       localStorage.removeItem(CACHE_KEY);
     }
   }
@@ -88,6 +93,7 @@ export const getCricketUpdate = async (): Promise<CricketData> => {
     }
 
     try {
+      console.log("Fetching cricket updates from Gemini...");
       const ai = new GoogleGenAI({ apiKey });
       const response = await ai.models.generateContent({
         model: "gemini-3-flash-preview",
@@ -97,6 +103,7 @@ export const getCricketUpdate = async (): Promise<CricketData> => {
         },
       });
 
+      if (!response) throw new Error("Empty response from Gemini API");
       const text = response.text || "Cricket information currently unavailable.";
       const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
       const links = groundingChunks
@@ -109,6 +116,10 @@ export const getCricketUpdate = async (): Promise<CricketData> => {
       localStorage.removeItem(ERROR_LOCK_KEY);
       return result;
     } catch (error: any) {
+      console.error("Cricket API Error Detailed:", error);
+      if (error.message && error.message.includes('Failed to fetch')) {
+        return { text: "Cricket updates unavailable: Network error (Failed to fetch).", links: [] };
+      }
       // Check for 429 specifically
       const isQuotaError = error?.message?.includes('429') || error?.status === 429 || (error?.error?.code === 429);
       
@@ -118,7 +129,6 @@ export const getCricketUpdate = async (): Promise<CricketData> => {
         throw new Error("QUOTA_EXHAUSTED");
       }
       
-      console.error("Cricket API Error:", error);
       throw error;
     } finally {
       cricketRequestInProgress = null;

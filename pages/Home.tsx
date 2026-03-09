@@ -171,7 +171,7 @@ const CricketWidget: React.FC = () => {
 };
 
 const Home: React.FC = () => {
-  const { lang, articles } = useAppContext();
+  const { lang, articles, categories } = useAppContext();
   const [sliderIndex, setSliderIndex] = useState(0);
 
   const publishedArticles = articles.filter(a => a.status === 'published');
@@ -203,14 +203,17 @@ const Home: React.FC = () => {
     setSliderIndex(prev => (prev + 1) % sliderPosts.length);
   };
 
-  const renderCategoryGrid = (category: string) => {
-    const catArticles = publishedArticles.filter(a => a.category === category);
+  const renderCategoryGrid = (categoryNameEn: string) => {
+    // Filter articles by the category name (case-insensitive)
+    const catArticles = publishedArticles.filter(a => 
+      a.category.toLowerCase() === categoryNameEn.toLowerCase()
+    );
     if (catArticles.length === 0) return null;
 
     // 1. AI: THE NEURAL GRID (Hero + Side List)
-    if (category === 'AI') {
+    if (categoryNameEn.toLowerCase() === 'ai') {
       return (
-        <div key={category} className="space-y-8 py-8">
+        <div key={categoryNameEn} className="space-y-8 py-8">
           <div className="flex items-center justify-between border-b border-white/5 pb-4">
             <h3 className="text-3xl font-serif font-bold flex items-center text-white">
               <span className="w-2.5 h-8 bg-blue-600 rounded-full mr-4 shadow-[0_0_15px_rgba(37,99,235,0.4)]"></span>
@@ -244,9 +247,9 @@ const Home: React.FC = () => {
     }
 
     // 2. SOFTWARE: THE DEV STACK (Alternating Horizontal Zig-Zag)
-    if (category === 'Software') {
+    if (categoryNameEn.toLowerCase() === 'software') {
       return (
-        <div key={category} className="space-y-8 py-8">
+        <div key={categoryNameEn} className="space-y-8 py-8">
           <div className="flex items-center justify-between border-b border-white/5 pb-4">
             <h3 className="text-3xl font-serif font-bold flex items-center text-white">
               <span className="w-2.5 h-8 bg-emerald-500 rounded-full mr-4 shadow-[0_0_15px_rgba(16,185,129,0.4)]"></span>
@@ -282,9 +285,9 @@ const Home: React.FC = () => {
     }
 
     // 3. HARDWARE: THE SHOWCASE (3-Column Benchmarks)
-    if (category === 'Hardware') {
+    if (categoryNameEn.toLowerCase() === 'hardware') {
       return (
-        <div key={category} className="space-y-8 py-8">
+        <div key={categoryNameEn} className="space-y-8 py-8">
            <div className="flex items-center justify-between border-b border-white/5 pb-4">
             <h3 className="text-3xl font-serif font-bold flex items-center text-white">
               <span className="w-2.5 h-8 bg-amber-500 rounded-full mr-4 shadow-[0_0_15px_rgba(245,158,11,0.4)]"></span>
@@ -316,9 +319,9 @@ const Home: React.FC = () => {
     }
 
     // 4. CRYPTO: THE LEDGER (High-Density List)
-    if (category === 'Crypto') {
+    if (categoryNameEn.toLowerCase() === 'crypto') {
       return (
-        <div key={category} className="space-y-8 py-8">
+        <div key={categoryNameEn} className="space-y-8 py-8">
            <div className="flex items-center justify-between border-b border-white/5 pb-4">
             <h3 className="text-3xl font-serif font-bold flex items-center text-white">
               <span className="w-2.5 h-8 bg-orange-500 rounded-full mr-4 shadow-[0_0_15px_rgba(249,115,22,0.4)]"></span>
@@ -350,9 +353,9 @@ const Home: React.FC = () => {
     }
 
     // 5. MOBILE: THE OS DECK (2-Column Grid)
-    if (category === 'Mobile') {
+    if (categoryNameEn.toLowerCase() === 'mobile') {
       return (
-        <div key={category} className="space-y-8 py-8">
+        <div key={categoryNameEn} className="space-y-8 py-8">
            <div className="flex items-center justify-between border-b border-white/5 pb-4">
             <h3 className="text-3xl font-serif font-bold flex items-center text-white">
               <span className="w-2.5 h-8 bg-indigo-500 rounded-full mr-4 shadow-[0_0_15px_rgba(99,102,241,0.4)]"></span>
@@ -382,11 +385,14 @@ const Home: React.FC = () => {
 
     // Default Fallback
     return (
-      <div key={category} className="space-y-6">
-        <h3 className="text-2xl font-serif font-bold flex items-center text-white">
-          <span className="w-8 h-1 bg-slate-300 mr-3"></span>
-          {category}
-        </h3>
+      <div key={categoryNameEn} className="space-y-6 py-8">
+        <div className="flex items-center justify-between border-b border-white/5 pb-4">
+          <h3 className="text-3xl font-serif font-bold flex items-center text-white">
+            <span className="w-2.5 h-8 bg-slate-600 rounded-full mr-4 shadow-[0_0_15px_rgba(71,85,105,0.4)]"></span>
+            {categoryNameEn}
+          </h3>
+          <ArrowRight className="text-slate-500" size={24} />
+        </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {catArticles.map(a => <ArticleCard key={a.id} article={a} lang={lang as any} />)}
         </div>
@@ -489,7 +495,7 @@ const Home: React.FC = () => {
                 </Link>
               ))}
             </div>
-            {CATEGORIES.map(cat => renderCategoryGrid(cat.en))}
+            {categories.map(cat => renderCategoryGrid(cat.name['en'] || cat.slug))}
           </div>
           <aside className="lg:w-1/3 space-y-12">
             <CricketWidget />

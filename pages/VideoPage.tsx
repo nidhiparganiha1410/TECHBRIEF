@@ -1,14 +1,13 @@
 
 import React from 'react';
-import { MOCK_ARTICLES } from '../services/mockData';
 import { useAppContext } from '../context/AppContext';
 import { Play, Calendar, PlayCircle, Clock, Share2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const VideoPage: React.FC = () => {
-  const { lang } = useAppContext();
-  // Filter articles that have a video URL or just simulate some as videos
-  const videoPosts = MOCK_ARTICLES.filter(a => !!a.videoUrl || a.id === '3' || a.id === '2');
+  const { lang, articles } = useAppContext();
+  // Filter articles that have a video URL
+  const videoPosts = articles.filter(a => !!a.videoUrl && a.status === 'published');
 
   return (
     <div className="bg-slate-950 min-h-screen text-white pb-32">

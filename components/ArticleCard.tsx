@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Article, Language } from '../types';
-import { Calendar, User, ChevronRight } from 'lucide-react';
+import { Calendar, User, ChevronRight, Play } from 'lucide-react';
 import { getTranslation } from '../translations';
 
 interface ArticleCardProps {
@@ -23,6 +23,13 @@ const ArticleCard: React.FC<ArticleCardProps> = ({ article, lang }) => {
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           loading="lazy"
         />
+        {article.videoUrl && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-all">
+            <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center text-white shadow-xl transform group-hover:scale-110 transition-transform">
+              <Play size={20} fill="currentColor" className="ml-1" />
+            </div>
+          </div>
+        )}
         <div className="absolute top-4 left-4">
           <span className="px-3 py-1 bg-blue-600/90 text-white text-xs font-bold rounded-lg backdrop-blur-md shadow-lg">
             {article.category}

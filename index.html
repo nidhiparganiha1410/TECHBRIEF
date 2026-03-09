@@ -8,6 +8,24 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <script>
+      // Global protection for window.fetch to prevent third-party scripts from crashing the app
+      // when they try to overwrite the read-only fetch property.
+      (function() {
+        try {
+          var originalFetch = window.fetch;
+          if (originalFetch) {
+            Object.defineProperty(window, 'fetch', {
+              get: function() { return originalFetch; },
+              set: function(v) { console.warn("Blocked attempt to overwrite window.fetch:", v); },
+              configurable: true
+            });
+          }
+        } catch (e) {
+          console.warn("Fetch protection initialization warning:", e);
+        }
+      })();
+    </script>
 <script type="importmap">
 {
   "imports": {
