@@ -13,6 +13,7 @@ import Login from './pages/Login';
 import VideoPage from './pages/VideoPage';
 import { APP_NAME, NAVIGATION } from './constants';
 import { Twitter, Facebook, Linkedin, Instagram, Youtube, Send, Mail, MapPin, Phone, CheckCircle2, Loader2 } from 'lucide-react';
+import { Analytics } from '@vercel/analytics/react';
 
 // Standard utility to scroll to top on every route change
 const ScrollToTop = () => {
@@ -111,6 +112,7 @@ const AppContent: React.FC = () => {
     <div className="min-h-screen flex flex-col bg-[#0f172a]">
       <ScrollToTop />
       <ScriptInjector />
+      <Analytics />
       <StockTicker />
       <Header />
       
